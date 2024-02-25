@@ -24,7 +24,7 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-    String index = "users/index";
+    String form = "users/form";
 
     private static final String userSessionKey = "user";
 
@@ -51,43 +51,52 @@ public class UserController {
     public String displayLoginForm(Model model) {
         model.addAttribute(new LoginFormDTO());
         model.addAttribute("title", "Log In");
-        return index;
+        return form;
     }
 
     @GetMapping("signup")
     public String displaySignupForm(Model model) {
         model.addAttribute(new LoginFormDTO());
         model.addAttribute("title", "Sign Up");
-        return index;
+        return form;
     }
 
-    //TODO Make login form method
-//    @PostMapping("login")
-//    public String processLoginForm(
-//            @ModelAttribute @Valid User newUser, Errors errors, Model model) {
-//
-//        if (errors.hasErrors()) {
-//            return "users/index";
-//        }
-//        System.out.println(newUser.getPwHash());
-//
-//        return "redirect:";
-//    }
+    @PostMapping("login")
+    public String processLoginForm(@ModelAttribute @Valid LoginFormDTO loginFormDTO,
+                                   Errors errors, HttpServletRequest request, Model model) {
+            if (errors.hasErrors()) {
+                model.addAttribute("title", "Log In");
+                return form;
+            }
+
+            User user = userRepository.findByName(loginFormDTO.getUsername());
+            String password = loginFormDTO.getPassword();
+
+            if (user == null || !user.isMatchingPassword(password)) {
+                errors.rejectValue("username", "user.invalid", "Invalid username or password.");
+                model.addAttribute("title", "Log In");
+                return form;
+            }
+
+            setUserInSession(request.getSession(), user);
+
+            return "redirect:";
+    }
 
     @PostMapping("signup")
     public String processSignupForm(@ModelAttribute @Valid LoginFormDTO loginFormDTO,
                                     Errors errors, HttpServletRequest request, Model model) {
         if (errors.hasErrors()) {
             model.addAttribute("title", "Sign Up");
-            return index;
+            return form;
         }
 
         User existingUser = userRepository.findByName(loginFormDTO.getUsername());
 
         if (existingUser != null) {
             errors.rejectValue("username", "username.alreadyexists", "Username is taken.");
-            model.addAttribute("title", "Register");
-            return "register";
+            model.addAttribute("title", "Sign Up");
+            return form;
         }
 
         User newUser = new User(loginFormDTO.getUsername(), loginFormDTO.getPassword());
@@ -95,5 +104,11 @@ public class UserController {
         setUserInSession(request.getSession(), newUser);
 
         return "redirect:";
+    }
+
+    @GetMapping("logout")
+    public String logout(HttpServletRequest request){
+        request.getSession().invalidate();
+        return "form";
     }
 }
