@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.HashMap;
 
-/**
- * Created by LaunchCode
- */
 @Controller
 @RequestMapping(value = "list")
 public class ListController {
