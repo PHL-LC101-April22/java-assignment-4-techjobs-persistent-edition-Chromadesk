@@ -107,8 +107,8 @@ public class UserController {
     }
 
     @GetMapping("logout")
-    public String logout(HttpServletRequest request){
+    public String logout(Model model, HttpServletRequest request){
         request.getSession().invalidate();
-        return "form";
+        return "redirect:";
     }
 }
