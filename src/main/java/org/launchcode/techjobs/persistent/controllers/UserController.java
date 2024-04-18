@@ -25,8 +25,9 @@ public class UserController {
     UserRepository userRepository;
 
     String form = "users/form";
+    String dashboard = "users/dashboard";
 
-    private static final String userSessionKey = "user";
+    public static final String userSessionKey = "user";
 
     public User getUserFromSession(HttpSession session) {
         Integer userId = (Integer) session.getAttribute(userSessionKey);
@@ -48,23 +49,30 @@ public class UserController {
     }
 
     @GetMapping("login")
-    public String displayLoginForm(Model model) {
-        model.addAttribute(new LoginFormDTO());
+    public String displayLoginForm(Model model, HttpSession session) {
         model.addAttribute("title", "Log In");
+        model.addAttribute("isLoggedOut", true);
+        if (session.getAttribute(userSessionKey) != null) { return "redirect:"; }
+
+        model.addAttribute(new LoginFormDTO());
         return form;
     }
 
     @GetMapping("signup")
-    public String displaySignupForm(Model model) {
+    public String displaySignupForm(Model model, HttpSession session) {
         model.addAttribute(new LoginFormDTO());
         model.addAttribute("title", "Sign Up");
+        model.addAttribute("isLoggedOut", true);
+        if (session.getAttribute(userSessionKey) != null) { return "redirect:"; }
         return form;
     }
 
     @PostMapping("login")
     public String processLoginForm(@ModelAttribute @Valid LoginFormDTO loginFormDTO,
                                    Errors errors, HttpServletRequest request, Model model) {
-            if (errors.hasErrors()) {
+        model.addAttribute("isLoggedOut", false);
+
+        if (errors.hasErrors()) {
                 model.addAttribute("title", "Log In");
                 return form;
             }
@@ -86,16 +94,15 @@ public class UserController {
     @PostMapping("signup")
     public String processSignupForm(@ModelAttribute @Valid LoginFormDTO loginFormDTO,
                                     Errors errors, HttpServletRequest request, Model model) {
-        if (errors.hasErrors()) {
-            model.addAttribute("title", "Sign Up");
-            return form;
-        }
+        model.addAttribute("title", "Sign Up");
+        model.addAttribute("isLoggedOut", true);
+
+        if (errors.hasErrors()) { return form; }
 
         User existingUser = userRepository.findByName(loginFormDTO.getUsername());
 
         if (existingUser != null) {
             errors.rejectValue("username", "username.alreadyexists", "Username is taken.");
-            model.addAttribute("title", "Sign Up");
             return form;
         }
 
@@ -110,5 +117,13 @@ public class UserController {
     public String logout(Model model, HttpServletRequest request){
         request.getSession().invalidate();
         return "redirect:";
+    }
+
+    @GetMapping
+    public String dashboard(Model model) {
+
+        model.addAttribute("title", "hi");
+
+        return dashboard;
     }
 }

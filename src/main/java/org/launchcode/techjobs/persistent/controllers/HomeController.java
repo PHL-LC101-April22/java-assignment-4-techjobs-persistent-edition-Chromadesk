@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -29,9 +30,11 @@ public class HomeController {
     private SkillRepository skillRepository;
 
     @RequestMapping("")
-    public String index(Model model) {
+    public String index(Model model, HttpSession session) {
 
         model.addAttribute("title", "My Jobs");
+        model.addAttribute("isLoggedOut",
+                session.getAttribute(UserController.userSessionKey) == null);
 
         return "index";
     }
