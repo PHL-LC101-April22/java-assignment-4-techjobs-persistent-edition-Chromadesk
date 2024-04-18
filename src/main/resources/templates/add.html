@@ -15,13 +15,9 @@
     </div>
 
     <div class="form-group">
-        <label th:for="employer">Employer</label>
-        <select name="employerId">
-            <option th:each="employer : ${employers}"
-                    th:text="${employer.name}"
-                    th:value="${employer.id}"></option>
-        </select>
-        <a th:href="@{'/employers/add'}">Add Employers</a>
+        <label th:for="salary">Annual Salary</label>
+        <input class="form-control" th:field="${job.salary}" />
+        <span th:errors="${job.salary}" class="error"></span>
     </div>
 
     <div class="form-group">
@@ -31,6 +27,12 @@
             <label th:text="${skill.name}"></label>
         </th:block>
         <a th:href="@{'/skills/add'}">Add Skills</a>
+    </div>
+
+    <div class="form-group">
+        <label th:for="description">Description</label>
+        <input class="form-control" th:field="${job.description}" />
+        <span th:errors="${job.name}" class="error"></span>
     </div>
 
     <input type="submit" value="Add Job" />

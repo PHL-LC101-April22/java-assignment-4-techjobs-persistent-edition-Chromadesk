@@ -32,5 +32,4 @@ public class User extends AbstractEntity {
     public boolean isAdmin() {
         return isAdmin;
     }
-
 }
