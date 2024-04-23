@@ -14,7 +14,7 @@
 <table class="centeredTable">
     <tr>
         <th>All</th>
-        <th>Employer</th>
+        <th>Location</th>
         <th>Skill</th>
     </tr>
 
@@ -25,8 +25,8 @@
             </li>
         </td>
         <td>
-            <li th:each="employer : ${employers}">
-                <a th:href="@{/list/jobs(column=employer,value=${employer.name})}" th:text="${employer.name}"></a>
+            <li th:each="location : ${locations}">
+                <a th:href="@{/list/jobs(column=location,value=${location.name})}" th:text="${location.name}"></a>
             </li>
         </td>
         <td>
