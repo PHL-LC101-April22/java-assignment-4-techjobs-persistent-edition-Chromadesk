@@ -1,13 +1,7 @@
 package org.launchcode.techjobs.persistent.controllers;
 
-import org.launchcode.techjobs.persistent.models.Employer;
-import org.launchcode.techjobs.persistent.models.Job;
-import org.launchcode.techjobs.persistent.models.Skill;
-import org.launchcode.techjobs.persistent.models.User;
-import org.launchcode.techjobs.persistent.models.data.EmployerRepository;
-import org.launchcode.techjobs.persistent.models.data.JobRepository;
-import org.launchcode.techjobs.persistent.models.data.SkillRepository;
-import org.launchcode.techjobs.persistent.models.data.UserRepository;
+import org.launchcode.techjobs.persistent.models.*;
+import org.launchcode.techjobs.persistent.models.data.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,11 +18,12 @@ public class HomeController {
 
     @Autowired
     private JobRepository jobRepository;
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private SkillRepository skillRepository;
+    @Autowired
+    private LocationRepository locationRepository;
 
     @RequestMapping("")
     public String index(Model model, HttpSession session) {
@@ -44,6 +39,7 @@ public class HomeController {
     public String displayAddJobForm(Model model, HttpSession session) {
         model.addAttribute("title", "Post New Job");
         model.addAttribute("skills", skillRepository.findAll());
+        model.addAttribute("locations", locationRepository.findAll());
         model.addAttribute(new Job());
         return "add";
     }
@@ -51,19 +47,23 @@ public class HomeController {
     @PostMapping("add")
     public String processAddJobForm(@ModelAttribute @Valid Job newJob,
                                     Errors errors, Model model, HttpSession session,
-                                    @RequestParam List<Integer> skills) {
+                                    @RequestParam List<Integer> skills,
+                                    @RequestParam int location) {
         if (errors.hasErrors()) {
             model.addAttribute("title", "Add Job");
             model.addAttribute("skills", skillRepository.findAll());
+            model.addAttribute("locations", locationRepository.findAll());
             model.addAttribute(new Job());
             return "add";
         }
 
         Optional<User> employerResult =
                 userRepository.findById((Integer) session.getAttribute(UserController.userSessionKey));
+        Optional<Location> locationResult = locationRepository.findById(location);
         List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
         newJob.setSkills(skillObjs);
         newJob.setEmployer(employerResult.get());
+        newJob.setLocation(locationResult.get());
         jobRepository.save(newJob);
 
         return "list";

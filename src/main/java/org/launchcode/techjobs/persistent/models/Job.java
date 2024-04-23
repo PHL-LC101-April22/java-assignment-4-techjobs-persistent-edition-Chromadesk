@@ -12,6 +12,17 @@ public class Job extends AbstractEntity {
     @ManyToOne
     private User employer;
 
+    @ManyToOne
+    private Location location;
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     @NotNull
     @Min(value = 1, message = "Salary can't be less than 1.")
     private int salary;
